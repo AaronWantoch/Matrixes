@@ -2,9 +2,7 @@ import math
 
 class DataGenerator:
     @staticmethod
-    def generateA(N, e, f):
-        a1 = 5 + e
-        a2 = a3 = -1
+    def generateA(N, a1, a2, a3, f):
         A = [[0 for x in range(N)] for y in range(N)]
         for i in range(N):
             A[i][i] = a1

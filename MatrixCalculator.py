@@ -1,8 +1,9 @@
 import math
-import numpy as np
 from copy import deepcopy
 
+
 class MatrixCalculator:
+
     @staticmethod
     def calculateJacobi(A, b):
         iterations=0
@@ -43,31 +44,28 @@ class MatrixCalculator:
         U = MatrixCalculator.getUpperMatrix(A)
         L = MatrixCalculator.getLowerMatrix(A)
         D = MatrixCalculator.getDiagonalMatrix(A)
-        inversedDLSum = MatrixCalculator.inverse(MatrixCalculator.sumMatrixes(D, L))
+        DLSum = MatrixCalculator.sumMatrixes(D, L)
 
-        factor1 = MatrixCalculator.multiplyMatrixByNumber(inversedDLSum, -1)
-        factor2 = MatrixCalculator.multiplyMatrixByVector(inversedDLSum, b)
+        factor1 = MatrixCalculator.multiplyMatrixByNumber(DLSum, -1)
+        factor2 = MatrixCalculator.forwardSubstitiution(DLSum, b)
 
         minusb = MatrixCalculator.multiplyVectorByNumber(b, -1)
         r = [1] * len(A)
-
         res = MatrixCalculator.sumVectors(
             MatrixCalculator.multiplyMatrixByVector(A, r),
             minusb)  # Ar-b
         norm = MatrixCalculator.vectorNorm(res)
 
         while norm > math.pow(10, -9):
-            r = MatrixCalculator.sumVectors(
-                MatrixCalculator.multiplyMatrixByVector(factor1, MatrixCalculator.multiplyMatrixByVector(U, r)),
-                factor2)
+            UtimesR = MatrixCalculator.multiplyMatrixByVector(U, r)
+            substitution = MatrixCalculator.forwardSubstitiution(factor1, UtimesR)
+            r = MatrixCalculator.sumVectors(substitution, factor2)
             res = MatrixCalculator.sumVectors(
                 MatrixCalculator.multiplyMatrixByVector(A, r),
                 minusb)
             norm = MatrixCalculator.vectorNorm(res)
             iterations += 1
         return r, iterations
-
-
 
     #-----------------UTILS--------------------
     @staticmethod
@@ -153,7 +151,7 @@ class MatrixCalculator:
     def multiplyMatrixByMatrix(A,B):
         ret = []
         for i in range(len(A)):
-            current=[]
+            current = []
             row = A[i]
             for j in range(len(B)):
                 column = [k[j] for k in B]
@@ -174,7 +172,7 @@ class MatrixCalculator:
         for i in range(len(A)):
             current = 0
             for j in range(len(A[i])):
-                current += A[j][i]*b[i]
+                current += A[i][j] * b[j]
             ret.append(current)
         return ret
 
@@ -219,6 +217,6 @@ class MatrixCalculator:
         for i in range(len(A)):
             sum=0
             for j in range(i):
-                sum+=A[i][j] * ret[j]
+                sum += A[i][j] * ret[j]
             ret.append((b[i]-sum)/A[i][i])
         return ret
